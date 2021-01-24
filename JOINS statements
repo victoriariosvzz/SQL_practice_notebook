@@ -1,0 +1,93 @@
+/*JOINs allow us to combine multiple tables together, the reason for the different JOIN types
+is to decide how to deal with information only present in one of the joined tables*/
+
+--*AS statement*
+--Example 1
+SELECT amount AS rental_price
+FROM payment;
+
+/* NOTE: The AS operator gets executed 
+at the VERY END of a query, we can NOT use
+alias inside WHERE operator */
+
+--Example 2
+SELECT customer_id,SUM(amount) 
+AS total_spent
+FROM payment
+GROUP BY customer_id;
+
+--Example 3: Pay attention to the HAVING statement
+SELECT customer_id,SUM(amount) 
+AS total_spent
+FROM payment
+GROUP BY customer_id
+HAVING SUM (amount)>100;
+
+--*INNER JOIN*: will result with the set of records that match in both tables as a single table.
+--SYNTAX
+SELECT * FROM TableB
+INNER JOIN TableA
+ON TableA.col_name = TableB.col_name;
+
+--Exmaple
+SELECT * FROM registrations
+INNER JOIN logins
+ON registrations.name = logins.name;
+
+--Example with dvd rental database
+SELECT payment.payment_id,payment.customer_id,customer.first_name FROM payment
+INNER JOIN customer
+ON customer.customer_id = payment.customer_id;
+
+--*OUTER JOINs*: allows us to specify how to deal with values only present in ONE of the tables being joined
+
+--FULL OUTER JOIN: Grabs EVERYTHING from both tables and joins them
+--Example 1: We joint all the values from both tables, but only the ones that give back values unique to one table or the other, they appear as "null" values.
+SELECT * FROM customer
+FULL OUTER JOIN payment
+ON customer.customer_id = payment.customer_id
+WHERE customer.customer_id IS null
+OR payment.customer_id IS null;
+
+--LEFT OUTER JOIN: Grabs the values exclusive to the table on the left (table 1) and values in the intersection between table 1 and table 2.
+--Exmaple 1: the left joining of film and inventory, showing ALL the information from film
+SELECT film.film_id,film.title,inventory_id 
+FROM film
+LEFT OUTER JOIN inventory
+ON film.film_id = inventory.film_id;
+
+--Example 2: showing the films that are NOT in inventory
+SELECT film.film_id,film.title,inventory_id 
+FROM film
+LEFT OUTER JOIN inventory
+ON film.film_id = inventory.film_id
+WHERE inventory.film_id IS null;
+
+--RIGHT OUTER JOIN: exactly the same as left outer join, but now choosing the right table as priority.
+
+--*UNION*: allows to concatenate two SELECT statements together
+--SYNTAX:
+SELECT col1 FROM table1
+UNION
+SELECT col2 FROM table2;
+
+/* -----JOIN Challenges----*/
+--What are the emails of the customers who live in California?
+SELECT address.district,customer.email
+FROM address
+INNER JOIN customer
+ON address.address_id = customer.address_id
+WHERE address.district = 'California';
+
+--Looking for all the movies where the starring actor is Nick Wahlberg.
+SELECT film_actor.actor_id,actor.first_name,actor.last_name,film.title
+FROM film_actor
+INNER JOIN film
+ON film_actor.film_id = film.film_id
+INNER JOIN actor
+ON film_actor.actor_id =actor.actor_id
+WHERE first_name = 'Nick' AND last_name = 'Wahlberg';
+
+
+
+
